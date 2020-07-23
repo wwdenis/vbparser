@@ -860,27 +860,6 @@
       </result>
     </test>
     <test>
-      <code>Dim x As Integer</code>
-      <result>
-        <VariableListDeclaration startLine="1" startCol="1" endLine="1" endCol="17">
-          <ModifierCollection startLine="1" startCol="1" endLine="1" endCol="5">
-            <Modifier startLine="1" startCol="1" endLine="1" endCol="5" type="Dim" />
-          </ModifierCollection>
-          <VariableDeclaratorCollection startLine="1" startCol="5" endLine="1" endCol="17">
-            <VariableDeclarator startLine="1" startCol="5" endLine="1" endCol="17">
-              <VariableNameCollection startLine="1" startCol="5" endLine="1" endCol="7">
-                <VariableName startLine="1" startCol="5" endLine="1" endCol="7">
-                  <SimpleName startLine="1" startCol="5" endLine="1" endCol="6" escaped="False">x</SimpleName>
-                </VariableName>
-              </VariableNameCollection>
-              <As line="1" col="7" />
-              <IntrinsicType startLine="1" startCol="10" endLine="1" endCol="17" intrinsicType="Integer" />
-            </VariableDeclarator>
-          </VariableDeclaratorCollection>
-        </VariableListDeclaration>
-      </result>
-    </test>
-    <test>
       <code>Dim x As Integer = 10</code>
       <result>
         <VariableListDeclaration startLine="1" startCol="1" endLine="1" endCol="22">

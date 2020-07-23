@@ -691,23 +691,6 @@
       </result>
     </test>
     <test>
-      <code>Select Case x : End Select</code>
-      <result>
-        <SelectBlockStatement startLine="1" startCol="1" endLine="1" endCol="27">
-          <Case line="1" col="8" />
-          <SimpleNameExpression startLine="1" startCol="13" endLine="1" endCol="15" isConstant="False">
-            <SimpleName startLine="1" startCol="13" endLine="1" endCol="14" escaped="False">x</SimpleName>
-          </SimpleNameExpression>
-          <StatementCollection startLine="1" startCol="17" endLine="1" endCol="20">
-            <Colon line="1" col="15" />
-          </StatementCollection>
-          <EndBlockStatement startLine="1" startCol="17" endLine="1" endCol="27" endType="Select">
-            <Select line="1" col="21" />
-          </EndBlockStatement>
-        </SelectBlockStatement>
-      </result>
-    </test>
-    <test>
       <code>Select x : Case y : z : End Select</code>
       <result>
         <SelectBlockStatement startLine="1" startCol="1" endLine="1" endCol="35">
