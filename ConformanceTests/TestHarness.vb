@@ -3,17 +3,17 @@
 '
 ' Copyright (C) 2005, Microsoft Corporation. All rights reserved.
 '
-' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
-' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF 
+' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTIBILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 '
 
 Imports System.IO
 Imports System.Reflection
-Imports System.Text
 Imports System.Xml
-Imports System.Xml.Serialization
 Imports VBParser
+Imports Xunit
+Imports Xunit.Abstractions
 
 ' UNDONE: Need conformance tests for full-width characters
 
@@ -24,157 +24,152 @@ Public Enum ScenarioType
     Declaration
     TypeName
     File
-    Max = File
 End Enum
 
-Public Structure Test
+Public Class Test
+    Implements IXunitSerializable
+    Public Scenario As ScenarioType
     Public ErrorsExpected As Boolean
-    Public Element As XmlElement
     Public Code As String
     Public Result As String
     Public Errors As String
     Public Version As LanguageVersion
-End Structure
 
-Public Structure Scenario
-    Public Element As XmlElement
-    Public Document As XmlDocument
-    Public Name As String
-    Public Type As ScenarioType
-    Public Tests() As Test
-End Structure
+    Public Sub Deserialize(info As IXunitSerializationInfo) Implements IXunitSerializable.Deserialize
+        Scenario = info.GetValue(Of ScenarioType)("Scenario")
+        ErrorsExpected = info.GetValue(Of Boolean)("ErrorsExpected")
+        Code = info.GetValue(Of String)("Code")
+        Result = info.GetValue(Of String)("Result")
+        Errors = info.GetValue(Of String)("Errors")
+        Version = info.GetValue(Of LanguageVersion)("Version")
+    End Sub
 
-Friend Class TestHarness
-    Public Scenarios()() As Scenario
+    Public Sub Serialize(info As IXunitSerializationInfo) Implements IXunitSerializable.Serialize
+        info.AddValue("Scenario", Me.Scenario)
+        info.AddValue("ErrorsExpected", Me.ErrorsExpected)
+        info.AddValue("Code", Me.Code)
+        info.AddValue("Result", Me.Result)
+        info.AddValue("Errors", Me.Errors)
+        info.AddValue("Version", Me.Version)
+    End Sub
 
-    Public Sub New()
+    Public Overrides Function ToString() As String
+        Return Code
+    End Function
+End Class
+
+Public Class TestHarness
+
+    Public Function LoadTests(fileName As String) As TheoryData(Of Test)
         Dim Assem As [Assembly] = [Assembly].GetExecutingAssembly()
-        Dim Resources() As String = Assem.GetManifestResourceNames()
-        Dim ScenarioLists(ScenarioType.Max) As List(Of Scenario)
-        Dim ScenarioCount As Integer = 0
+        Dim resourceName = String.Join(".", Me.GetType().Namespace, fileName)
 
-        For Index As Integer = 0 To ScenarioType.Max
-            ScenarioLists(Index) = New List(Of Scenario)()
-        Next
+        Dim Stream As Stream = Assem.GetManifestResourceStream(resourceName)
+        Dim Scenario As New ScenarioType
+        Dim Tests As New TheoryData(Of Test)
 
-        For Each ResourceName As String In Resources
-            Dim Stream As Stream = Assem.GetManifestResourceStream(ResourceName)
-            Dim Scenario As Scenario
-            Dim Tests As New List(Of Test)
+        If Not resourceName.EndsWith(".xml") Then
+            Throw New ArgumentOutOfRangeException(NameOf(resourceName))
+        End If
 
-            If Not ResourceName.EndsWith(".xml") Then
+        Dim Document = New XmlDocument
+        Document.Load(Stream)
+        Stream.Close()
+
+        Dim ScenarioElement = Document("scenario")
+
+        Select Case ScenarioElement.GetAttribute("type")
+            Case "token"
+                Scenario = ScenarioType.Token
+
+            Case "expression"
+                Scenario = ScenarioType.Expression
+
+            Case "statement"
+                Scenario = ScenarioType.Statement
+
+            Case "declaration"
+                Scenario = ScenarioType.Declaration
+
+            Case "typename"
+                Scenario = ScenarioType.TypeName
+
+            Case "file"
+                Scenario = ScenarioType.File
+        End Select
+
+        For Each ScenarioChildNode As XmlNode In ScenarioElement.ChildNodes
+            Dim ValidElement As XmlElement = TryCast(ScenarioChildNode, XmlElement)
+            Dim ErrorTests As Boolean
+
+            If ValidElement Is Nothing Then
                 Continue For
             End If
 
-            Scenario.Document = New XmlDocument
-            Scenario.Document.Load(Stream)
-            Stream.Close()
-            ScenarioCount += 1
+            If ValidElement.Name <> "valid" AndAlso ValidElement.Name <> "invalid" Then
+                Continue For
+            End If
 
-            Scenario.Element = Scenario.Document("scenario")
-            Scenario.Name = Scenario.Element.GetAttribute("name")
+            ErrorTests = ValidElement.Name = "invalid"
 
-            Select Case Scenario.Element.GetAttribute("type")
-                Case "token"
-                    Scenario.Type = ScenarioType.Token
+            For Each ChildNode As XmlNode In ValidElement.ChildNodes
+                Dim Test As New Test
 
-                Case "expression"
-                    Scenario.Type = ScenarioType.Expression
+                Test.ErrorsExpected = ErrorTests
+                Dim Element = TryCast(ChildNode, XmlElement)
 
-                Case "statement"
-                    Scenario.Type = ScenarioType.Statement
-
-                Case "declaration"
-                    Scenario.Type = ScenarioType.Declaration
-
-                Case "typename"
-                    Scenario.Type = ScenarioType.TypeName
-
-                Case "file"
-                    Scenario.Type = ScenarioType.File
-            End Select
-
-            For Each ScenarioChildNode As XmlNode In Scenario.Element.ChildNodes
-                Dim ValidElement As XmlElement = TryCast(ScenarioChildNode, XmlElement)
-                Dim ErrorTests As Boolean
-
-                If ValidElement Is Nothing Then
+                If Element Is Nothing Then
                     Continue For
                 End If
 
-                If ValidElement.Name <> "valid" AndAlso ValidElement.Name <> "invalid" Then
-                    Continue For
+                If Element.GetAttribute("version") = "8.0" Then
+                    Test.Version = LanguageVersion.VisualBasic80
+                ElseIf Element.GetAttribute("version") = "7.1" Then
+                    Test.Version = LanguageVersion.VisualBasic71
+                Else
+                    Test.Version = LanguageVersion.All
                 End If
 
-                ErrorTests = ValidElement.Name = "invalid"
+                Test.Code = Element("code").InnerText.Trim(ControlChars.Cr, ControlChars.Lf)
 
-                For Each ChildNode As XmlNode In ValidElement.ChildNodes
-                    Dim Test As Test
+                Debug.Assert(Element.GetElementsByTagName("result").Count < 2, "too many results!")
 
-                    Test.ErrorsExpected = ErrorTests
-                    Test.Element = TryCast(ChildNode, XmlElement)
+                If Not Element("result") Is Nothing Then
+                    Dim StringWriter As StringWriter = New StringWriter
+                    Dim Writer As XmlTextWriter = New XmlTextWriter(StringWriter)
 
-                    If Test.Element Is Nothing Then
-                        Continue For
-                    End If
+                    Writer.Formatting = Formatting.Indented
+                    Element("result").WriteContentTo(Writer)
+                    Writer.Close()
+                    StringWriter.Close()
 
-                    If Test.Element.GetAttribute("version") = "8.0" Then
-                        Test.Version = LanguageVersion.VisualBasic80
-                    ElseIf Test.Element.GetAttribute("version") = "7.1" Then
-                        Test.Version = LanguageVersion.VisualBasic71
-                    Else
-                        Test.Version = LanguageVersion.All
-                    End If
+                    Test.Result = StringWriter.ToString()
+                Else
+                    Test.Result = Nothing
+                End If
 
-                    Test.Code = Test.Element("code").InnerText.Trim(ControlChars.Cr, ControlChars.Lf)
+                If Not Element("errors") Is Nothing Then
+                    Dim StringWriter As StringWriter = New StringWriter
+                    Dim Writer As XmlTextWriter = New XmlTextWriter(StringWriter)
 
-                    Debug.Assert(Test.Element.GetElementsByTagName("result").Count < 2, "too many results!")
+                    Writer.Formatting = Formatting.Indented
+                    Element("errors").WriteContentTo(Writer)
+                    Writer.Close()
+                    StringWriter.Close()
 
-                    If Not Test.Element("result") Is Nothing Then
-                        Dim StringWriter As StringWriter = New StringWriter
-                        Dim Writer As XmlTextWriter = New XmlTextWriter(StringWriter)
+                    Test.Errors = StringWriter.ToString()
+                Else
+                    Test.Errors = Nothing
+                End If
 
-                        Writer.Formatting = Formatting.Indented
-                        Test.Element("result").WriteContentTo(Writer)
-                        Writer.Close()
-                        StringWriter.Close()
+                Test.Scenario = Scenario
 
-                        Test.Result = StringWriter.ToString()
-                    Else
-                        Test.Result = Nothing
-                    End If
-
-                    If Not Test.Element("errors") Is Nothing Then
-                        Dim StringWriter As StringWriter = New StringWriter
-                        Dim Writer As XmlTextWriter = New XmlTextWriter(StringWriter)
-
-                        Writer.Formatting = Formatting.Indented
-                        Test.Element("errors").WriteContentTo(Writer)
-                        Writer.Close()
-                        StringWriter.Close()
-
-                        Test.Errors = StringWriter.ToString()
-                    Else
-                        Test.Errors = Nothing
-                    End If
-
-                    Tests.Add(Test)
-                Next
+                Tests.Add(Test)
             Next
-
-            Scenario.Tests = New Test(Tests.Count - 1) {}
-            Tests.CopyTo(Scenario.Tests)
-
-            ScenarioLists(Scenario.Type).Add(Scenario)
         Next
 
-        Scenarios = New Scenario(ScenarioType.Max)() {}
-
-        For Index As Integer = 0 To ScenarioType.Max
-            Scenarios(Index) = New Scenario(ScenarioLists(Index).Count - 1) {}
-            ScenarioLists(Index).CopyTo(Scenarios(Index))
-        Next
-    End Sub
+        Return Tests
+    End Function
 
     Private Sub RunScanTest(ByVal Test As Test, ByVal Version As LanguageVersion, ByVal FormatResults As Boolean, ByRef Result As String, ByRef ErrorResult As String)
         Dim Scanner As Scanner = New Scanner(Test.Code, Version)
@@ -211,7 +206,7 @@ Friend Class TestHarness
         End If
     End Sub
 
-    Private Sub RunParseTest(ByVal ScenarioType As ScenarioType, ByVal Test As Test, ByVal Version As LanguageVersion, ByVal FormatResults As Boolean, ByRef Result As String, ByRef ErrorResult As String)
+    Private Sub RunParseTest(ByVal Test As Test, ByVal Version As LanguageVersion, ByVal FormatResults As Boolean, ByRef Result As String, ByRef ErrorResult As String)
         Dim StringWriter As StringWriter = New StringWriter()
         Dim Writer As XmlTextWriter = New XmlTextWriter(StringWriter)
         Dim Serializer As TreeXmlSerializer = New TreeXmlSerializer(Writer)
@@ -225,7 +220,7 @@ Friend Class TestHarness
             ErrorWriter.Formatting = Formatting.Indented
         End If
 
-        Select Case ScenarioType
+        Select Case Test.Scenario
             Case ScenarioType.Expression
                 Dim Scanner As Scanner = New Scanner(Test.Code, Version)
                 Dim Parser As Parser = New Parser
@@ -275,70 +270,48 @@ Friend Class TestHarness
         End If
     End Sub
 
-    Public Sub RunSingleTest(ByVal ScenarioType As ScenarioType, ByVal Test As Test, ByVal Version As LanguageVersion, ByRef Result As String, ByRef ErrorResult As String, Optional ByVal FormatResults As Boolean = True)
-        Select Case ScenarioType
+    Public Sub RunSingleTest(ByVal Test As Test, ByVal Version As LanguageVersion, ByRef Result As String, ByRef ErrorResult As String, Optional ByVal FormatResults As Boolean = True)
+        Select Case Test.Scenario
             Case ScenarioType.Token
                 RunScanTest(Test, Version, FormatResults, Result, ErrorResult)
 
             Case ScenarioType.Expression, ScenarioType.Statement, ScenarioType.Declaration, ScenarioType.TypeName, ScenarioType.File
-                RunParseTest(ScenarioType, Test, Version, FormatResults, Result, ErrorResult)
+                RunParseTest(Test, Version, FormatResults, Result, ErrorResult)
 
             Case Else
                 Debug.Fail("Unexpected.")
         End Select
     End Sub
 
-    Public Function RunSingleVersionTest(ByVal ScenarioType As ScenarioType, ByVal Test As Test, ByVal Version As LanguageVersion, ByRef AddedResults As Boolean) As Boolean
+    Public Function RunSingleVersionTest(ByVal Test As Test, ByVal Version As LanguageVersion) As Boolean
         Dim ActualResult As String = ""
         Dim ActualErrors As String = ""
 
-        RunSingleTest(ScenarioType, Test, Version, ActualResult, ActualErrors, Not Test.Result Is Nothing)
+        RunSingleTest(Test, Version, ActualResult, ActualErrors, Not Test.Result Is Nothing)
 
-        If Not Test.Result Is Nothing Then
-            Dim Result As String = Test.Result
-            Dim Errors As String = Test.Errors
+        Dim Result As String = Test.Result
+        Dim Errors As String = Test.Errors
 
-            Return ActualResult = Result AndAlso ActualErrors = Errors
-        Else
-            Dim ResultElement As XmlElement = Test.Element.OwnerDocument.CreateElement("result")
-            Dim ResultFragment As XmlDocumentFragment = Test.Element.OwnerDocument.CreateDocumentFragment()
-
-            ResultFragment.InnerXml = ActualResult
-            ResultElement.AppendChild(ResultFragment)
-            Test.Element.AppendChild(ResultElement)
-
-            If ActualErrors <> "" Then
-                Dim ErrorsElement As XmlElement = Test.Element.OwnerDocument.CreateElement("errors")
-                Dim ErrorsFragment As XmlDocumentFragment = Test.Element.OwnerDocument.CreateDocumentFragment()
-
-                ErrorsFragment.InnerXml = ActualErrors
-                ErrorsElement.AppendChild(ErrorsFragment)
-                Test.Element.AppendChild(ErrorsElement)
-            End If
-
-            AddedResults = True
-
-            Return True
-        End If
+        Return ActualResult = Result AndAlso ActualErrors = Errors
     End Function
 
-    Public Function RunTest(ByVal ScenarioType As ScenarioType, ByVal Test As Test, ByRef AddedResults As Boolean) As Boolean
+    Public Function RunTest(ByVal Test As Test) As Boolean
         Dim TestResult As Boolean = False
 
+        If Test.Version = LanguageVersion.None Then
+            Return False
+        End If
+
         If (Test.Version And LanguageVersion.VisualBasic71) <> 0 Then
-            TestResult = RunSingleVersionTest(ScenarioType, Test, LanguageVersion.VisualBasic71, AddedResults)
+            TestResult = RunSingleVersionTest(Test, LanguageVersion.VisualBasic71)
 
             If Not TestResult Then
                 Return False
             End If
-
-            If AddedResults Then
-                Return True
-            End If
         End If
 
         If (Test.Version And LanguageVersion.VisualBasic80) <> 0 Then
-            TestResult = RunSingleVersionTest(ScenarioType, Test, LanguageVersion.VisualBasic80, AddedResults)
+            TestResult = RunSingleVersionTest(Test, LanguageVersion.VisualBasic80)
 
             If Not TestResult Then
                 Return False
@@ -347,4 +320,10 @@ Friend Class TestHarness
 
         Return True
     End Function
+
+    Public Sub AssertTest(ByVal Test As Test)
+        Dim TestResult = RunTest(Test)
+        Assert.True(TestResult)
+    End Sub
+
 End Class

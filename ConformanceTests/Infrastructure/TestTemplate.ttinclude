@@ -1,0 +1,21 @@
+﻿<#@ output extension=".vb" #>
+<#@ parameter name="Name" type="System.String" #>
+<#@ parameter name="Tests" type="System.Collections.Generic.IEnumerable<string>" #>
+Imports Xunit
+
+Public Class <#=Name#>Tests
+    Private Shared ReadOnly Harness As New TestHarness
+
+<# foreach (var test in Tests) { #>
+    Public Shared <#=test#>Scenarios As TheoryData = Harness.LoadTests("<#=test#>.xml")
+<# } #>
+
+<# foreach (var test in Tests) { #>
+    <Theory>
+    <MemberData(NameOf(<#=test#>Scenarios))>
+    Public Sub <#=test#>Tests(test As Test)
+        Harness.AssertTest(test)
+    End Sub
+
+<# } #>
+End Class

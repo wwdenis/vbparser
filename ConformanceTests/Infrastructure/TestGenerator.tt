@@ -1,0 +1,55 @@
+﻿<#@ template hostspecific="true" language="VB" #>
+<#@ output extension=".vb" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
+<# GenerateAll() #>
+<#+
+    Public Sub GenerateAll()
+        Dim templateDir = Path.GetDirectoryName(Me.Host.TemplateFile)
+        Dim projectDir = templateDir & "\..\"
+        Dim sourceRoot = Path.Combine(projectDir, "Tests")
+        Dim info = New DirectoryInfo(sourceRoot)
+        Dim dirs = info.EnumerateDirectories()
+
+        For Each dir As DirectoryInfo In dirs
+            Dim testDir = Path.Combine(sourceRoot, dir.Name)
+            Dim files = Directory.EnumerateFiles(testDir, "*.xml")
+            Me.SetParameters(dir.Name, files)
+            Dim outputFile = Path.Combine(sourceRoot, $"{dir.Name}Tests.vb")
+            Me.Generate("TestTemplate.ttinclude")
+            Me.SaveOutput(outputFile)
+        Next
+    End Sub
+
+    Public Sub SetParameters(ByVal name As String, ByVal files As IEnumerable(Of String))
+        Dim session As New TextTemplatingSession()
+        Dim tests As New List(Of String)
+
+        For Each file As String In files
+            Dim test = Path.GetFileNameWithoutExtension(file)
+            tests.Add(test)
+        Next
+
+        session("Name") = name
+        session("Tests") = tests
+        Dim host = CType(Me.Host, ITextTemplatingSessionHost)
+        host.Session = session
+    End Sub
+
+    Public Sub Generate(ByVal templatePath As String)
+        Dim engine = New Engine()
+        Dim templateFile = Host.ResolvePath(templatePath)
+        Dim content = File.ReadAllText(templateFile)
+        Dim output = engine.ProcessTemplate(content, Host)
+        Me.Write(output)
+    End Sub
+
+    Public Sub SaveOutput(ByVal outputFile As String)
+        Dim outputDir = Path.GetDirectoryName(Host.TemplateFile)
+        Dim outputPath = Path.Combine(outputDir, outputFile)
+        Dim contents = Me.GenerationEnvironment.ToString()
+        File.WriteAllText(outputPath, contents)
+        Me.GenerationEnvironment.Remove(0, Me.GenerationEnvironment.Length)
+    End Sub
+#>
