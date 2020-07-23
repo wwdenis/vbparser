@@ -2295,7 +2295,8 @@ Public NotInheritable Class Parser
 
             Case TokenType.Short, TokenType.Integer, TokenType.Long, TokenType.Decimal, _
                  TokenType.Single, TokenType.Double, TokenType.Byte, TokenType.Boolean, _
-                 TokenType.Char, TokenType.Date, TokenType.String, TokenType.Object
+                 TokenType.Char, TokenType.Date, TokenType.String, TokenType.Object, _
+                 TokenType.UShort, TokenType.UInteger, TokenType.ULong, TokenType.SByte
                 Dim ReferencedType As TypeName = ParseTypeName(False)
 
                 Terminal = New TypeReferenceExpression(ReferencedType, ReferencedType.Span)
