@@ -2324,7 +2324,7 @@ Public NotInheritable Class Parser
                 Dim LeftParenthesis As Token = Read()
 
                 If Peek().Type = TokenType.Of Then
-                    Return New GenericQualifiedExpression(Terminal, ParseTypeArguments(LeftParenthesis, False), SpanFrom(Start))
+                    Terminal = New GenericQualifiedExpression(Terminal, ParseTypeArguments(LeftParenthesis, False), SpanFrom(Start))
                 Else
                     Backtrack(LeftParenthesis)
                     Terminal = ParseCallOrIndexExpression(Start, Terminal)
