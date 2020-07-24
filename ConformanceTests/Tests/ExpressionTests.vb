@@ -5,6 +5,7 @@ Public Class ExpressionTests
 
     Public Shared AddressOfScenarios As TheoryData = Harness.LoadTests("AddressOf.xml")
     Public Shared CallOrIndexScenarios As TheoryData = Harness.LoadTests("CallOrIndex.xml")
+    Public Shared CallOrIndexGenericScenarios As TheoryData = Harness.LoadTests("CallOrIndexGeneric.xml")
     Public Shared CastsScenarios As TheoryData = Harness.LoadTests("Casts.xml")
     Public Shared InstancesScenarios As TheoryData = Harness.LoadTests("Instances.xml")
     Public Shared LiteralsScenarios As TheoryData = Harness.LoadTests("Literals.xml")
@@ -24,6 +25,12 @@ Public Class ExpressionTests
     <Theory>
     <MemberData(NameOf(CallOrIndexScenarios))>
     Public Sub CallOrIndexTests(test As Test)
+        Harness.AssertTest(test)
+    End Sub
+
+    <Theory>
+    <MemberData(NameOf(CallOrIndexGenericScenarios))>
+    Public Sub CallOrIndexGenericTests(test As Test)
         Harness.AssertTest(test)
     End Sub
 

@@ -3,8 +3,8 @@
 '
 ' Copyright (C) 2005, Microsoft Corporation. All rights reserved.
 '
-' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
-' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF 
+' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTIBILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 '
 
@@ -134,6 +134,8 @@ Public Class TreeXmlSerializer
             Case Else
                 Debug.Fail("Unexpected!")
         End Select
+
+        Return TokenType.LexicalError
     End Function
 
     Private Shared Function GetBlockTypeToken(ByVal blockType As BlockType) As TokenType
@@ -219,6 +221,8 @@ Public Class TreeXmlSerializer
             Case Else
                 Debug.Fail("Unexpected!")
         End Select
+
+        Return TokenType.LexicalError
     End Function
 
     Private Sub SerializeSpan(ByVal Span As Span)

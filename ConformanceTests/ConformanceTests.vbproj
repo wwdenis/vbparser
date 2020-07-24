@@ -37,6 +37,7 @@
     <EmbeddedResource Include="Tests\Declaration\Attribute.xml" />
     <EmbeddedResource Include="Tests\Expression\AddressOf.xml" />
     <EmbeddedResource Include="Tests\Expression\CallOrIndex.xml" />
+    <EmbeddedResource Include="Tests\Expression\CallOrIndexGeneric.xml" />
     <EmbeddedResource Include="Tests\Expression\Casts.xml" />
     <EmbeddedResource Include="Tests\Expression\Instances.xml" />
     <EmbeddedResource Include="Tests\Expression\Literals.xml" />

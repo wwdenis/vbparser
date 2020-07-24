@@ -317,5 +317,24 @@
         </File>
       </result>
     </test>
+    <test>
+      <code>
+        ' First
+        Option Compare Text
+      </code>
+      <result>
+        <File startLine="1" startCol="1" endLine="2" endCol="28">
+          <DeclarationCollection startLine="1" startCol="1" endLine="2" endCol="28">
+            <EmptyDeclaration startLine="1" startCol="1" endLine="1" endCol="8">
+              <Comment startLine="1" startCol="1" endLine="1" endCol="8" isRem="False"> First</Comment>
+            </EmptyDeclaration>
+            <OptionDeclaration startLine="2" startCol="9" endLine="2" endCol="28" type="CompareText">
+              <Compare line="2" col="16" />
+              <Text line="2" col="24" />
+            </OptionDeclaration>
+          </DeclarationCollection>
+        </File>
+      </result>
+    </test>
   </valid>
 </scenario>

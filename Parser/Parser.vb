@@ -3,8 +3,8 @@
 '
 ' Copyright (C) 2005, Microsoft Corporation. All rights reserved.
 '
-' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
-' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF 
+' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTIBILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 '
 
@@ -822,6 +822,8 @@ Public NotInheritable Class Parser
             Case Else
                 Debug.Fail("Unexpected.")
         End Select
+
+        Return False
     End Function
 
     Private Shared Function ValidDeclaration(ByVal blockType As TreeType, ByVal declaration As Declaration, ByVal declarations As List(Of Declaration)) As SyntaxErrorType
@@ -830,11 +832,14 @@ Public NotInheritable Class Parser
         End If
 
         If declaration.Type = TreeType.InheritsDeclaration Then
-            For Each ExistingDeclaration As Declaration In declarations
-                If blockType = TreeType.ClassDeclaration OrElse ExistingDeclaration.Type <> TreeType.InheritsDeclaration Then
-                    Return SyntaxErrorType.InheritsMustBeFirst
-                End If
-            Next
+            If blockType = TreeType.ClassDeclaration Then
+                For Each ExistingDeclaration As Declaration In declarations
+                    If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                       ExistingDeclaration.Type <> TreeType.InheritsDeclaration Then
+                        Return SyntaxErrorType.InheritsMustBeFirst
+                    End If
+                Next
+            End If
 
             If CType(declaration, InheritsDeclaration).InheritedTypes.Count > 1 AndAlso blockType <> TreeType.InterfaceDeclaration Then
                 Return SyntaxErrorType.NoMultipleInheritance
@@ -843,7 +848,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.ImplementsDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.InheritsDeclaration AndAlso _
+                If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.InheritsDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.ImplementsDeclaration Then
                     Return SyntaxErrorType.ImplementsInWrongOrder
                 End If
@@ -852,7 +858,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.OptionDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.OptionDeclaration Then
+                If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.OptionDeclaration Then
                     Return SyntaxErrorType.OptionStatementWrongOrder
                 End If
             Next
@@ -860,7 +867,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.ImportsDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
+                If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.ImportsDeclaration Then
                     Return SyntaxErrorType.ImportsStatementWrongOrder
                 End If
@@ -869,7 +877,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.AttributeDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
+                If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.ImportsDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.AttributeDeclaration Then
                     Return SyntaxErrorType.AttributesStatementWrongOrder
@@ -1444,7 +1453,7 @@ Public NotInheritable Class Parser
             Dim IdentifierToken As IdentifierToken = CType(Read(), IdentifierToken)
             Return New SimpleName(IdentifierToken.Identifier, IdentifierToken.TypeCharacter, IdentifierToken.Escaped, IdentifierToken.Span)
         Else
-            ' If the token is a keyword, assume that the user meant it to 
+            ' If the token is a keyword, assume that the user meant it to
             ' be an identifer and consume it. Otherwise, leave current token
             ' as is and let caller decide what to do.
             If IdentifierToken.IsKeyword(Peek().Type) Then
@@ -1501,7 +1510,7 @@ Public NotInheritable Class Parser
         Dim Name As SimpleName
         Dim ArrayType As ArrayTypeName = Nothing
 
-        ' CONSIDER: Often, programmers put extra decl specifiers where they are not required. 
+        ' CONSIDER: Often, programmers put extra decl specifiers where they are not required.
         ' Eg: Dim x as Integer, Dim y as Long
         ' Check for this and give a more informative error?
 
@@ -1926,7 +1935,7 @@ Public NotInheritable Class Parser
         Else
             Dim Current As Token = Peek()
 
-            ' On error, peek for ")" with "(". If ")" seen before 
+            ' On error, peek for ")" with "(". If ")" seen before
             ' "(", then sync on that. Otherwise, assume missing ")"
             ' and let caller decide.
             ResyncAt(TokenType.LeftParenthesis, TokenType.RightParenthesis)
@@ -2293,7 +2302,8 @@ Public NotInheritable Class Parser
 
             Case TokenType.Short, TokenType.Integer, TokenType.Long, TokenType.Decimal, _
                  TokenType.Single, TokenType.Double, TokenType.Byte, TokenType.Boolean, _
-                 TokenType.Char, TokenType.Date, TokenType.String, TokenType.Object
+                 TokenType.Char, TokenType.Date, TokenType.String, TokenType.Object, _
+                 TokenType.UShort, TokenType.UInteger, TokenType.ULong, TokenType.SByte
                 Dim ReferencedType As TypeName = ParseTypeName(False)
 
                 Terminal = New TypeReferenceExpression(ReferencedType, ReferencedType.Span)
@@ -2321,7 +2331,7 @@ Public NotInheritable Class Parser
                 Dim LeftParenthesis As Token = Read()
 
                 If Peek().Type = TokenType.Of Then
-                    Return New GenericQualifiedExpression(Terminal, ParseTypeArguments(LeftParenthesis, False), SpanFrom(Start))
+                    Terminal = New GenericQualifiedExpression(Terminal, ParseTypeArguments(LeftParenthesis, False), SpanFrom(Start))
                 Else
                     Backtrack(LeftParenthesis)
                     Terminal = ParseCallOrIndexExpression(Start, Terminal)
@@ -3898,7 +3908,7 @@ SyntaxError:
         VariableNameCollection = New VariableNameCollection(VariableNames, Nothing, SpanFrom(Start))
 
         If ErrorInConstruct Then
-            ' If we see As before a In or Each, then assume that we are still on the Control Variable Declaration. 
+            ' If we see As before a In or Each, then assume that we are still on the Control Variable Declaration.
             ' Otherwise, don't resync and allow the caller to decide how to recover.
             If PeekAheadFor(TokenType.As, TokenType.In, TokenType.Equals) = TokenType.As Then
                 ResyncAt(TokenType.As)
@@ -5424,7 +5434,7 @@ HaveStatement:
         Else
             Dim CurrentToken As Token = Peek()
 
-            ' On error, peek for ")" with "(". If ")" seen before 
+            ' On error, peek for ")" with "(". If ")" seen before
             ' "(", then sync on that. Otherwise, assume missing ")"
             ' and let caller decide.
             ResyncAt(TokenType.LeftParenthesis, TokenType.RightParenthesis)

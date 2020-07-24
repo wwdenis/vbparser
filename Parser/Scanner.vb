@@ -3,8 +3,8 @@
 '
 ' Copyright (C) 2005, Microsoft Corporation. All rights reserved.
 '
-' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
-' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF 
+' THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+' EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
 ' MERCHANTIBILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 '
 
@@ -1090,15 +1090,14 @@ ContinueScan:
                c = ChrW(&HFFFF)
     End Function
 
-    Private Function EatWhitespace() As Boolean
+    Private Sub EatWhitespace()
         Dim c As Char = PeekChar()
 
         While c = ChrW(9) OrElse Char.GetUnicodeCategory(c) = UnicodeCategory.SpaceSeparator
             ReadChar()
-            EatWhitespace = True
             c = PeekChar()
         End While
-    End Function
+    End Sub
 
     Private Function Read(ByVal advance As Boolean) As Token
         Dim TokenRead As Token
