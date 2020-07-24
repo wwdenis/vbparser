@@ -832,11 +832,14 @@ Public NotInheritable Class Parser
         End If
 
         If declaration.Type = TreeType.InheritsDeclaration Then
-            For Each ExistingDeclaration As Declaration In declarations
-                If blockType = TreeType.ClassDeclaration OrElse ExistingDeclaration.Type <> TreeType.InheritsDeclaration Then
-                    Return SyntaxErrorType.InheritsMustBeFirst
-                End If
-            Next
+            If blockType = TreeType.ClassDeclaration Then
+                For Each ExistingDeclaration As Declaration In declarations
+                    If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                       ExistingDeclaration.Type <> TreeType.InheritsDeclaration Then
+                        Return SyntaxErrorType.InheritsMustBeFirst
+                    End If
+                Next
+            End If
 
             If CType(declaration, InheritsDeclaration).InheritedTypes.Count > 1 AndAlso blockType <> TreeType.InterfaceDeclaration Then
                 Return SyntaxErrorType.NoMultipleInheritance
@@ -845,7 +848,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.ImplementsDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.InheritsDeclaration AndAlso _
+                If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.InheritsDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.ImplementsDeclaration Then
                     Return SyntaxErrorType.ImplementsInWrongOrder
                 End If
@@ -854,7 +858,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.OptionDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.OptionDeclaration Then
+                If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.OptionDeclaration Then
                     Return SyntaxErrorType.OptionStatementWrongOrder
                 End If
             Next
@@ -862,7 +867,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.ImportsDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
+                If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.ImportsDeclaration Then
                     Return SyntaxErrorType.ImportsStatementWrongOrder
                 End If
@@ -871,7 +877,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.AttributeDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
+                If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.ImportsDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.AttributeDeclaration Then
                     Return SyntaxErrorType.AttributesStatementWrongOrder

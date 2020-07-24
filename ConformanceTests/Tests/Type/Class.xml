@@ -240,6 +240,62 @@
     <test>
       <code>
         Class Foo
+        ' First
+        Implements X
+        ' Second
+        Implements Y
+        ' Third
+        Inherits Z
+        End Class
+      </code>
+      <result>
+        <ClassDeclaration startLine="1" startCol="1" endLine="8" endCol="18">
+          <Class line="1" col="1" />
+          <SimpleName startLine="1" startCol="7" endLine="1" endCol="10" escaped="False">Foo</SimpleName>
+          <DeclarationCollection startLine="2" startCol="9" endLine="7" endCol="21">
+            <EmptyDeclaration startLine="2" startCol="9" endLine="2" endCol="16">
+              <Comment startLine="2" startCol="9" endLine="2" endCol="16" isRem="False"> First</Comment>
+            </EmptyDeclaration>
+            <ImplementsDeclaration startLine="3" startCol="9" endLine="3" endCol="21">
+              <TypeNameCollection startLine="3" startCol="20" endLine="3" endCol="21">
+                <NamedType startLine="3" startCol="20" endLine="3" endCol="21">
+                  <SimpleName startLine="3" startCol="20" endLine="3" endCol="21" escaped="False">X</SimpleName>
+                </NamedType>
+              </TypeNameCollection>
+            </ImplementsDeclaration>
+            <EmptyDeclaration startLine="4" startCol="9" endLine="4" endCol="17">
+              <Comment startLine="4" startCol="9" endLine="4" endCol="17" isRem="False"> Second</Comment>
+            </EmptyDeclaration>
+            <ImplementsDeclaration startLine="5" startCol="9" endLine="5" endCol="21">
+              <TypeNameCollection startLine="5" startCol="20" endLine="5" endCol="21">
+                <NamedType startLine="5" startCol="20" endLine="5" endCol="21">
+                  <SimpleName startLine="5" startCol="20" endLine="5" endCol="21" escaped="False">Y</SimpleName>
+                </NamedType>
+              </TypeNameCollection>
+            </ImplementsDeclaration>
+            <EmptyDeclaration startLine="6" startCol="9" endLine="6" endCol="16">
+              <Comment startLine="6" startCol="9" endLine="6" endCol="16" isRem="False"> Third</Comment>
+            </EmptyDeclaration>
+            <InheritsDeclaration startLine="7" startCol="9" endLine="7" endCol="19">
+              <TypeNameCollection startLine="7" startCol="18" endLine="7" endCol="19">
+                <NamedType startLine="7" startCol="18" endLine="7" endCol="19">
+                  <SimpleName startLine="7" startCol="18" endLine="7" endCol="19" escaped="False">Z</SimpleName>
+                </NamedType>
+              </TypeNameCollection>
+            </InheritsDeclaration>
+          </DeclarationCollection>
+          <EndBlockDeclaration startLine="8" startCol="9" endLine="8" endCol="18" endType="Class">
+            <Class line="8" col="13" />
+          </EndBlockDeclaration>
+        </ClassDeclaration>
+      </result>
+      <errors>
+        <InheritsMustBeFirst startLine="7" startCol="9" endLine="7" endCol="19">error 119 (9,7) - (19,7): 'Inherits' statements must precede all declarations.</InheritsMustBeFirst>
+      </errors>
+    </test>
+    <test>
+      <code>
+        Class Foo
         Sub Bar()
         End Sub
 
@@ -883,6 +939,76 @@
           </DeclarationCollection>
           <EndBlockDeclaration startLine="4" startCol="9" endLine="4" endCol="18" endType="Class">
             <Class line="4" col="13" />
+          </EndBlockDeclaration>
+        </ClassDeclaration>
+      </result>
+    </test>
+    <test>
+      <code>
+        Class Foo
+        ' First
+        Inherits X
+        End Class
+      </code>
+      <result>
+        <ClassDeclaration startLine="1" startCol="1" endLine="4" endCol="18">
+          <Class line="1" col="1" />
+          <SimpleName startLine="1" startCol="7" endLine="1" endCol="10" escaped="False">Foo</SimpleName>
+          <DeclarationCollection startLine="2" startCol="9" endLine="3" endCol="21">
+            <EmptyDeclaration startLine="2" startCol="9" endLine="2" endCol="16">
+              <Comment startLine="2" startCol="9" endLine="2" endCol="16" isRem="False"> First</Comment>
+            </EmptyDeclaration>
+            <InheritsDeclaration startLine="3" startCol="9" endLine="3" endCol="19">
+              <TypeNameCollection startLine="3" startCol="18" endLine="3" endCol="19">
+                <NamedType startLine="3" startCol="18" endLine="3" endCol="19">
+                  <SimpleName startLine="3" startCol="18" endLine="3" endCol="19" escaped="False">X</SimpleName>
+                </NamedType>
+              </TypeNameCollection>
+            </InheritsDeclaration>
+          </DeclarationCollection>
+          <EndBlockDeclaration startLine="4" startCol="9" endLine="4" endCol="18" endType="Class">
+            <Class line="4" col="13" />
+          </EndBlockDeclaration>
+        </ClassDeclaration>
+      </result>
+    </test>
+    <test>
+      <code>
+        Class Foo
+        ' First
+        Implements X
+        ' Second
+        Implements Y
+        End Class
+      </code>
+      <result>
+        <ClassDeclaration startLine="1" startCol="1" endLine="6" endCol="18">
+          <Class line="1" col="1" />
+          <SimpleName startLine="1" startCol="7" endLine="1" endCol="10" escaped="False">Foo</SimpleName>
+          <DeclarationCollection startLine="2" startCol="9" endLine="5" endCol="23">
+            <EmptyDeclaration startLine="2" startCol="9" endLine="2" endCol="16">
+              <Comment startLine="2" startCol="9" endLine="2" endCol="16" isRem="False"> First</Comment>
+            </EmptyDeclaration>
+            <ImplementsDeclaration startLine="3" startCol="9" endLine="3" endCol="21">
+              <TypeNameCollection startLine="3" startCol="20" endLine="3" endCol="21">
+                <NamedType startLine="3" startCol="20" endLine="3" endCol="21">
+                  <SimpleName startLine="3" startCol="20" endLine="3" endCol="21" escaped="False">X</SimpleName>
+                </NamedType>
+              </TypeNameCollection>
+            </ImplementsDeclaration>
+            <EmptyDeclaration startLine="4" startCol="9" endLine="4" endCol="17">
+              <Comment startLine="4" startCol="9" endLine="4" endCol="17" isRem="False"> Second</Comment>
+            </EmptyDeclaration>
+            <ImplementsDeclaration startLine="5" startCol="9" endLine="5" endCol="21">
+              <TypeNameCollection startLine="5" startCol="20" endLine="5" endCol="21">
+                <NamedType startLine="5" startCol="20" endLine="5" endCol="21">
+                  <SimpleName startLine="5" startCol="20" endLine="5" endCol="21" escaped="False">Y</SimpleName>
+                </NamedType>
+              </TypeNameCollection>
+            </ImplementsDeclaration>
+          </DeclarationCollection>
+          <EndBlockDeclaration startLine="6" startCol="9" endLine="6" endCol="18" endType="Class">
+            <Class line="6" col="13" />
           </EndBlockDeclaration>
         </ClassDeclaration>
       </result>
