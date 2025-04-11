@@ -1,0 +1,23 @@
+﻿<#@ output extension=".vb" #>
+<#@ parameter name="Name" type="System.String" #>
+<#@ parameter name="Tests" type="System.Collections.Generic.Dictionary<string, string>" #>
+Public Class <#=Name#>Tests
+    Private Shared ReadOnly Runner As New TestRunner
+
+<# foreach (var test in Tests) { #>
+    Public Shared <#=test.Key#>Scenarios As TheoryData = Runner.LoadTests("<#=test.Value#>")
+<# } #>
+
+    Sub New()
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US")
+    End Sub
+
+<# foreach (var testName in Tests.Keys) { #>
+    <Theory>
+    <MemberData(NameOf(<#=testName#>Scenarios))>
+    Public Sub <#=testName#>Tests(test As TestScenario)
+        Runner.AssertTest(test)
+    End Sub
+
+<# } #>
+End Class

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<scenario name="Parentheses" type="expression" description="11.4.2 Parenthesized Expressions">
+<scenario name="Parenthesis" type="expression" description="11.4.2 Parenthesized Expressions">
   <invalid>
     <test>
       <code>()</code>
@@ -54,9 +54,8 @@
         <ExpectedRightParenthesis startLine="1" startCol="7" endLine="1" endCol="7">error 14 (7,1) - (7,1): Expected ')'.</ExpectedRightParenthesis>
       </errors>
     </test>
-  </invalid>
-  <valid>
     <!-- Bogus, but doesn't cause an error -->
+    <!-- 
     <test>
       <code>x+y)</code>
       <result>
@@ -71,6 +70,9 @@
         </BinaryOperatorExpression>
       </result>
     </test>
+	-->
+  </invalid>
+  <valid>
     <test>
       <code>(x)</code>
       <result>

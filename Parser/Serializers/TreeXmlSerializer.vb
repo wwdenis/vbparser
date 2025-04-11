@@ -134,6 +134,8 @@ Public Class TreeXmlSerializer
             Case Else
                 Debug.Fail("Unexpected!")
         End Select
+
+        Return TokenType.LexicalError
     End Function
 
     Private Shared Function GetBlockTypeToken(ByVal blockType As BlockType) As TokenType
@@ -219,6 +221,8 @@ Public Class TreeXmlSerializer
             Case Else
                 Debug.Fail("Unexpected!")
         End Select
+
+        Return TokenType.LexicalError
     End Function
 
     Private Sub SerializeSpan(ByVal Span As Span)

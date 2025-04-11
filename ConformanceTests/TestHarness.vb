@@ -14,6 +14,7 @@ Imports System.Text
 Imports System.Xml
 Imports System.Xml.Serialization
 Imports VBParser
+Imports File = System.IO.File
 
 ' UNDONE: Need conformance tests for full-width characters
 
@@ -48,8 +49,7 @@ Friend Class TestHarness
     Public Scenarios()() As Scenario
 
     Public Sub New()
-        Dim Assem As [Assembly] = [Assembly].GetExecutingAssembly()
-        Dim Resources() As String = Assem.GetManifestResourceNames()
+        Dim Resources = Directory.EnumerateFiles("TestScenarios", "*.xml", SearchOption.AllDirectories)
         Dim ScenarioLists(ScenarioType.Max) As List(Of Scenario)
         Dim ScenarioCount As Integer = 0
 
@@ -58,13 +58,9 @@ Friend Class TestHarness
         Next
 
         For Each ResourceName As String In Resources
-            Dim Stream As Stream = Assem.GetManifestResourceStream(ResourceName)
+            Dim Stream As Stream = File.OpenRead(ResourceName)
             Dim Scenario As Scenario
             Dim Tests As New List(Of Test)
-
-            If Not ResourceName.EndsWith(".xml") Then
-                Continue For
-            End If
 
             Scenario.Document = New XmlDocument
             Scenario.Document.Load(Stream)
