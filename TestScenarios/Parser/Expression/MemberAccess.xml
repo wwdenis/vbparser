@@ -290,6 +290,19 @@
         </QualifiedExpression>
       </result>
     </test>
+    <!-- UShort, UInteger, ULong Not valid on 7.1 -->
+    <test version="7.1">
+      <code>UShort.MaxValue</code>
+      <result>
+        <QualifiedExpression startLine="1" startCol="1" endLine="1" endCol="16" isConstant="False">
+          <SimpleNameExpression startLine="1" startCol="1" endLine="1" endCol="7" isConstant="False">
+            <SimpleName startLine="1" startCol="1" endLine="1" endCol="7" escaped="False">UShort</SimpleName>
+          </SimpleNameExpression>
+          <Period line="1" col="7" />
+          <SimpleName startLine="1" startCol="8" endLine="1" endCol="16" escaped="False">MaxValue</SimpleName>
+        </QualifiedExpression>
+      </result>
+    </test>
     <test>
       <code>a.b</code>
       <result>
@@ -407,6 +420,18 @@
           </TypeReferenceExpression>
           <Period line="1" col="8" />
           <SimpleName startLine="1" startCol="9" endLine="1" endCol="17" escaped="False">ToString</SimpleName>
+        </QualifiedExpression>
+      </result>
+    </test>
+    <test version="8.0">
+      <code>ULong.MaxValue</code>
+      <result>
+        <QualifiedExpression startLine="1" startCol="1" endLine="1" endCol="15" isConstant="False">
+          <TypeReferenceExpression startLine="1" startCol="1" endLine="1" endCol="6" isConstant="False">
+            <IntrinsicType startLine="1" startCol="1" endLine="1" endCol="6" intrinsicType="ULong" />
+          </TypeReferenceExpression>
+          <Period line="1" col="6" />
+          <SimpleName startLine="1" startCol="7" endLine="1" endCol="15" escaped="False">MaxValue</SimpleName>
         </QualifiedExpression>
       </result>
     </test>

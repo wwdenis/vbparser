@@ -4,6 +4,7 @@ Public Class ParserTests
     Public Shared AttributeScenarios As TheoryData = Runner.LoadTests("Parser\Declaration\Attribute.xml")
     Public Shared AddressOfScenarios As TheoryData = Runner.LoadTests("Parser\Expression\AddressOf.xml")
     Public Shared CallOrIndexScenarios As TheoryData = Runner.LoadTests("Parser\Expression\CallOrIndex.xml")
+    Public Shared CallOrIndexGenericScenarios As TheoryData = Runner.LoadTests("Parser\Expression\CallOrIndexGeneric.xml")
     Public Shared CastsScenarios As TheoryData = Runner.LoadTests("Parser\Expression\Casts.xml")
     Public Shared InstancesScenarios As TheoryData = Runner.LoadTests("Parser\Expression\Instances.xml")
     Public Shared LiteralsScenarios As TheoryData = Runner.LoadTests("Parser\Expression\Literals.xml")
@@ -72,6 +73,12 @@ Public Class ParserTests
     <Theory>
     <MemberData(NameOf(CallOrIndexScenarios))>
     Public Sub CallOrIndexTests(test As TestScenario)
+        Runner.AssertTest(test)
+    End Sub
+
+    <Theory>
+    <MemberData(NameOf(CallOrIndexGenericScenarios))>
+    Public Sub CallOrIndexGenericTests(test As TestScenario)
         Runner.AssertTest(test)
     End Sub
 

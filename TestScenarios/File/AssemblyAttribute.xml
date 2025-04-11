@@ -1,5 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <scenario name="AssemblyAttribute" type="file" description="6 Source Files">
+  <valid>
+    <test>
+      <code>
+        ' First
+        &lt;Assembly: X&gt;
+      </code>
+      <result>
+        <File startLine="1" startCol="1" endLine="2" endCol="22">
+          <DeclarationCollection startLine="1" startCol="1" endLine="2" endCol="22">
+            <EmptyDeclaration startLine="1" startCol="1" endLine="1" endCol="8">
+              <Comment startLine="1" startCol="1" endLine="1" endCol="8" isRem="False"> First</Comment>
+            </EmptyDeclaration>
+            <AttributeDeclaration startLine="2" startCol="9" endLine="2" endCol="22">
+              <AttributeBlockCollection startLine="2" startCol="9" endLine="2" endCol="22">
+                <AttributeCollection startLine="2" startCol="9" endLine="2" endCol="22">
+                  <Attribute startLine="2" startCol="10" endLine="2" endCol="21" type="Assembly">
+                    <Colon line="2" col="18" />
+                    <Assembly line="2" col="10" />
+                    <SimpleName startLine="2" startCol="20" endLine="2" endCol="21" escaped="False">X</SimpleName>
+                  </Attribute>
+                  <GreaterThan line="2" col="21" />
+                </AttributeCollection>
+              </AttributeBlockCollection>
+            </AttributeDeclaration>
+          </DeclarationCollection>
+        </File>
+      </result>
+    </test>
+  </valid>
   <invalid>
     <test>
       <code>
