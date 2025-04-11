@@ -1,38 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
-		<TargetFramework>net472</TargetFramework>
-		<OptionCompare>Binary</OptionCompare>
-		<OptionExplicit>On</OptionExplicit>
-		<OptionStrict>On</OptionStrict>
-		<UseWindowsForms>true</UseWindowsForms>
-		<RootNamespace>ConformanceTests</RootNamespace>
-		<AssemblyName>ConformanceTests</AssemblyName>
-		<StartupObject>ConformanceTests.MainForm</StartupObject>
-		<ApplicationIcon>Binocular.ico</ApplicationIcon>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>42016;42017;42018;42019;42032</NoWarn>
-	</PropertyGroup>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <OptionCompare>Binary</OptionCompare>
+    <OptionExplicit>On</OptionExplicit>
+    <OptionStrict>On</OptionStrict>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>ConformanceTests</RootNamespace>
+    <AssemblyName>ConformanceTests</AssemblyName>
+    <StartupObject>ConformanceTests.MainForm</StartupObject>
+    <ApplicationIcon>Binocular.ico</ApplicationIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>42016;42017;42018;42019;42032</NoWarn>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<Import Include="Microsoft.VisualBasic" />
-		<Import Include="System" />
-		<Import Include="System.Collections" />
-		<Import Include="System.Collections.Generic" />
-		<Import Include="System.Diagnostics" />
-		<Import Include="System.Drawing" />
-		<Import Include="System.Windows.Forms" />
-	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Parser\Parser.vbproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="9.0.4" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<Content Include="Binocular.ico" />
-		<Content Include="License.txt" />
-		<Content Include="..\TestScenarios\**" Link="TestScenarios\%(RecursiveDir)%(Filename)%(Extension)">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Parser\Parser.vbproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Drawing" />
+    <Import Include="System.Windows.Forms" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Content Include="Binocular.ico" />
+    <Content Include="License.txt" />
+    <Content Include="..\TestScenarios\**" Link="TestScenarios\%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
