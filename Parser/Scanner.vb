@@ -1092,12 +1092,15 @@ ContinueScan:
 
     Private Function EatWhitespace() As Boolean
         Dim c As Char = PeekChar()
+        Dim result As Boolean = False
 
         While c = ChrW(9) OrElse Char.GetUnicodeCategory(c) = UnicodeCategory.SpaceSeparator
             ReadChar()
-            EatWhitespace = True
+            result = True
             c = PeekChar()
         End While
+
+        Return result
     End Function
 
     Private Function Read(ByVal advance As Boolean) As Token

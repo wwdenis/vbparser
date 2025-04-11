@@ -822,6 +822,8 @@ Public NotInheritable Class Parser
             Case Else
                 Debug.Fail("Unexpected.")
         End Select
+
+        Return False
     End Function
 
     Private Shared Function ValidDeclaration(ByVal blockType As TreeType, ByVal declaration As Declaration, ByVal declarations As List(Of Declaration)) As SyntaxErrorType
