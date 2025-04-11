@@ -1,6 +1,6 @@
 VB Parser
 ==========
-[![master Actions Status](https://github.com/wwdenis/vbparser/workflows/test/badge.svg)](https://github.com/wwdenis/vbparser/actions)
+[![Test](https://github.com/wwdenis/vbparser/actions/workflows/dotnet.yml/badge.svg)](https://github.com/wwdenis/vbparser/actions/workflows/dotnet.yml)
 
 ## Description
 This is a project based on the wonderful work of [@panopticoncentral](https://github.com/panopticoncentral) focused on VB syntax.
