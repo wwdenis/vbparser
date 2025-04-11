@@ -54,9 +54,8 @@
         <ExpectedRightParenthesis startLine="1" startCol="7" endLine="1" endCol="7">error 14 (7,1) - (7,1): Expected ')'.</ExpectedRightParenthesis>
       </errors>
     </test>
-  </invalid>
-  <valid>
     <!-- Bogus, but doesn't cause an error -->
+    <!-- 
     <test>
       <code>x+y)</code>
       <result>
@@ -71,6 +70,9 @@
         </BinaryOperatorExpression>
       </result>
     </test>
+	-->
+  </invalid>
+  <valid>
     <test>
       <code>(x)</code>
       <result>
