@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario name="CallOrIndexGemeric" type="expression" description="Chained Generic Methods">
+  <valid>
+    <test version="8.0">
+      <code>items.Execute(Of X).Count()</code>
+      <result>
+        <CallOrIndexExpression startLine="1" startCol="1" endLine="1" endCol="28" isConstant="False">
+          <QualifiedExpression startLine="1" startCol="1" endLine="1" endCol="26" isConstant="False">
+            <GenericQualifiedExpression startLine="1" startCol="1" endLine="1" endCol="20" isConstant="False">
+              <QualifiedExpression startLine="1" startCol="1" endLine="1" endCol="14" isConstant="False">
+                <SimpleNameExpression startLine="1" startCol="1" endLine="1" endCol="6" isConstant="False">
+                  <SimpleName startLine="1" startCol="1" endLine="1" endCol="6" escaped="False">items</SimpleName>
+                </SimpleNameExpression>
+                <Period line="1" col="6" />
+                <SimpleName startLine="1" startCol="7" endLine="1" endCol="14" escaped="False">Execute</SimpleName>
+              </QualifiedExpression>
+              <TypeArgumentCollection startLine="1" startCol="14" endLine="1" endCol="20">
+                <Of line="1" col="15" />
+                <NamedType startLine="1" startCol="18" endLine="1" endCol="19">
+                  <SimpleName startLine="1" startCol="18" endLine="1" endCol="19" escaped="False">X</SimpleName>
+                </NamedType>
+                <RightParenthesis line="1" col="19" />
+              </TypeArgumentCollection>
+            </GenericQualifiedExpression>
+            <Period line="1" col="20" />
+            <SimpleName startLine="1" startCol="21" endLine="1" endCol="26" escaped="False">Count</SimpleName>
+          </QualifiedExpression>
+          <ArgumentCollection startLine="1" startCol="26" endLine="1" endCol="28">
+            <RightParenthesis line="1" col="27" />
+          </ArgumentCollection>
+        </CallOrIndexExpression>
+      </result>
+    </test>
+  </valid>
+  <invalid>
+    <test version="8.0">
+      <code>items.Execute(Of X).</code>
+      <result>
+        <QualifiedExpression startLine="1" startCol="1" endLine="1" endCol="21" isConstant="False">
+          <GenericQualifiedExpression startLine="1" startCol="1" endLine="1" endCol="20" isConstant="False">
+            <QualifiedExpression startLine="1" startCol="1" endLine="1" endCol="14" isConstant="False">
+              <SimpleNameExpression startLine="1" startCol="1" endLine="1" endCol="6" isConstant="False">
+                <SimpleName startLine="1" startCol="1" endLine="1" endCol="6" escaped="False">items</SimpleName>
+              </SimpleNameExpression>
+              <Period line="1" col="6" />
+              <SimpleName startLine="1" startCol="7" endLine="1" endCol="14" escaped="False">Execute</SimpleName>
+            </QualifiedExpression>
+            <TypeArgumentCollection startLine="1" startCol="14" endLine="1" endCol="20">
+              <Of line="1" col="15" />
+              <NamedType startLine="1" startCol="18" endLine="1" endCol="19">
+                <SimpleName startLine="1" startCol="18" endLine="1" endCol="19" escaped="False">X</SimpleName>
+              </NamedType>
+              <RightParenthesis line="1" col="19" />
+            </TypeArgumentCollection>
+          </GenericQualifiedExpression>
+          <Period line="1" col="20" />
+          <SimpleName isBad="True" startLine="1" startCol="21" endLine="1" endCol="21" escaped="False" />
+        </QualifiedExpression>
+      </result>
+      <errors>
+        <ExpectedIdentifier startLine="1" startCol="21" endLine="1" endCol="21">error 23 (21,1) - (21,1): Expected identifier.</ExpectedIdentifier>
+      </errors>
+    </test>
+  </invalid>
+</scenario>

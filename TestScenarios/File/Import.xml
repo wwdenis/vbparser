@@ -560,5 +560,29 @@
         </File>
       </result>
     </test>
+    <test>
+      <code>
+        ' First
+        Imports X
+      </code>
+      <result>
+        <File startLine="1" startCol="1" endLine="2" endCol="18">
+          <DeclarationCollection startLine="1" startCol="1" endLine="2" endCol="18">
+            <EmptyDeclaration startLine="1" startCol="1" endLine="1" endCol="8">
+              <Comment startLine="1" startCol="1" endLine="1" endCol="8" isRem="False"> First</Comment>
+            </EmptyDeclaration>
+            <ImportsDeclaration startLine="2" startCol="9" endLine="2" endCol="18">
+              <ImportCollection startLine="2" startCol="17" endLine="2" endCol="18">
+                <NameImport startLine="2" startCol="17" endLine="2" endCol="18">
+                  <NamedType startLine="2" startCol="17" endLine="2" endCol="18">
+                    <SimpleName startLine="2" startCol="17" endLine="2" endCol="18" escaped="False">X</SimpleName>
+                  </NamedType>
+                </NameImport>
+              </ImportCollection>
+            </ImportsDeclaration>
+          </DeclarationCollection>
+        </File>
+      </result>
+    </test>
   </valid>
 </scenario>

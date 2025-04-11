@@ -832,11 +832,14 @@ Public NotInheritable Class Parser
         End If
 
         If declaration.Type = TreeType.InheritsDeclaration Then
-            For Each ExistingDeclaration As Declaration In declarations
-                If blockType = TreeType.ClassDeclaration OrElse ExistingDeclaration.Type <> TreeType.InheritsDeclaration Then
-                    Return SyntaxErrorType.InheritsMustBeFirst
-                End If
-            Next
+            If blockType = TreeType.ClassDeclaration Then
+                For Each ExistingDeclaration As Declaration In declarations
+                    If ExistingDeclaration.Type <> TreeType.EmptyDeclaration AndAlso _
+                       ExistingDeclaration.Type <> TreeType.InheritsDeclaration Then
+                        Return SyntaxErrorType.InheritsMustBeFirst
+                    End If
+                Next
+            End If
 
             If CType(declaration, InheritsDeclaration).InheritedTypes.Count > 1 AndAlso blockType <> TreeType.InterfaceDeclaration Then
                 Return SyntaxErrorType.NoMultipleInheritance
@@ -846,7 +849,8 @@ Public NotInheritable Class Parser
         If declaration.Type = TreeType.ImplementsDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
                 If ExistingDeclaration.Type <> TreeType.InheritsDeclaration AndAlso _
-                   ExistingDeclaration.Type <> TreeType.ImplementsDeclaration Then
+                   ExistingDeclaration.Type <> TreeType.ImplementsDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.EmptyDeclaration Then
                     Return SyntaxErrorType.ImplementsInWrongOrder
                 End If
             Next
@@ -854,7 +858,8 @@ Public NotInheritable Class Parser
 
         If declaration.Type = TreeType.OptionDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
-                If ExistingDeclaration.Type <> TreeType.OptionDeclaration Then
+                If ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.EmptyDeclaration Then
                     Return SyntaxErrorType.OptionStatementWrongOrder
                 End If
             Next
@@ -863,7 +868,8 @@ Public NotInheritable Class Parser
         If declaration.Type = TreeType.ImportsDeclaration Then
             For Each ExistingDeclaration As Declaration In declarations
                 If ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
-                   ExistingDeclaration.Type <> TreeType.ImportsDeclaration Then
+                   ExistingDeclaration.Type <> TreeType.ImportsDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.EmptyDeclaration Then
                     Return SyntaxErrorType.ImportsStatementWrongOrder
                 End If
             Next
@@ -873,7 +879,8 @@ Public NotInheritable Class Parser
             For Each ExistingDeclaration As Declaration In declarations
                 If ExistingDeclaration.Type <> TreeType.OptionDeclaration AndAlso _
                    ExistingDeclaration.Type <> TreeType.ImportsDeclaration AndAlso _
-                   ExistingDeclaration.Type <> TreeType.AttributeDeclaration Then
+                   ExistingDeclaration.Type <> TreeType.AttributeDeclaration AndAlso _
+                   ExistingDeclaration.Type <> TreeType.EmptyDeclaration Then
                     Return SyntaxErrorType.AttributesStatementWrongOrder
                 End If
             Next
@@ -2295,7 +2302,9 @@ Public NotInheritable Class Parser
 
             Case TokenType.Short, TokenType.Integer, TokenType.Long, TokenType.Decimal, _
                  TokenType.Single, TokenType.Double, TokenType.Byte, TokenType.Boolean, _
-                 TokenType.Char, TokenType.Date, TokenType.String, TokenType.Object
+                 TokenType.Char, TokenType.Date, TokenType.String, TokenType.Object, _
+                 TokenType.UShort, TokenType.UInteger, TokenType.ULong, TokenType.SByte
+
                 Dim ReferencedType As TypeName = ParseTypeName(False)
 
                 Terminal = New TypeReferenceExpression(ReferencedType, ReferencedType.Span)
@@ -2323,7 +2332,7 @@ Public NotInheritable Class Parser
                 Dim LeftParenthesis As Token = Read()
 
                 If Peek().Type = TokenType.Of Then
-                    Return New GenericQualifiedExpression(Terminal, ParseTypeArguments(LeftParenthesis, False), SpanFrom(Start))
+                    Terminal = New GenericQualifiedExpression(Terminal, ParseTypeArguments(LeftParenthesis, False), SpanFrom(Start))
                 Else
                     Backtrack(LeftParenthesis)
                     Terminal = ParseCallOrIndexExpression(Start, Terminal)
